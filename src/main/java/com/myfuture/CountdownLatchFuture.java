@@ -1,5 +1,7 @@
 package com.myfuture;
 
+import com.squareup.okhttp.*;
+
 import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -12,7 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
  **/
 public class CountdownLatchFuture {
 
-    private Future<Object> addSearchTask1(EngineServiceDTO srviceDTO, final FeatureRecognizeReqDTO reqDto) {
+    private Future<Object> addSearchTask1() {
+        OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder()
                 .build();
 
@@ -30,8 +33,7 @@ public class CountdownLatchFuture {
             @Override
             public void onResponse(Response response) throws IOException {
                 try {
-                    FeatureQueryResDTO searchFutureResult = getSearchResult(response, reqDto.getSubGroupId());
-                    value.set(searchFutureResult);
+                    value.set(response.body().toString());
                 }catch (Exception e){
                     throwable.compareAndSet(null,e);
                 }finally {
@@ -39,7 +41,7 @@ public class CountdownLatchFuture {
                 }
             }
         });
-        return  new Future<FacegoResultDTO>() {
+        return  new Future<Object>() {
             private volatile boolean cancelled;
 
             @Override
